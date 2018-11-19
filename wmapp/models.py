@@ -17,6 +17,8 @@ class Profile(db.Model):
     __tablename__ = 'profile'
     pid = db.Column(db.Integer(), primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
     lifestyle_type = db.Column(db.String(50), nullable=True)
     birthday = db.Column(db.DATE, nullable=True)
     gender = db.Column(db.String(10), nullable=True)
@@ -33,17 +35,32 @@ class Exercise(db.Model):
     primary_muscle = db.Column(db.String(80))
     secondary_muscle = db.Column(db.String(80))
     equipment = db.Column(db.String(50))
+    is_deleted = db.Column(db.Boolean, default=False)
 
 class Routine(db.Model):
+    __tablename__ = 'routine'
     rid = db.Column(db.Integer(), primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
-    eid = db.Column(db.Integer, db.ForeignKey('exercise.eid'))
-    description = db.Column(db.String(225))
+    eid = db.Column(db.ARRAY(db.Integer))
+    name = db.Column(db.String(225))
     muscle_area = db.Column(db.String(50))
+    is_deleted = db.Column(db.Boolean, default=False)
+
+# class RoutineExercise(db.Model):
+#     __tablename__ = 'routineexercise'
+#     rid = db.Column(db.Integer, db.ForeignKey('routine.rid'))
+#     eid = db.Column(db.Integer, db.ForeignKey('exercise.eid'))
 
 class Workout(db.Model):
     wid = db.Column(db.Integer(), primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    rid = db.Column(db.Integer, db.ForeignKey('routine.rid'))
     day = db.Column(db.DATE)
     notes = db.Column(db.String(225))
+    is_deleted = db.Column(db.Boolean, default=False)
 
+class Weight(db.Model):
+    weid = db.Column(db.Integer(), primary_key=True)
+    weight = db.Column(db.Integer())
+    date = db.Column(db.DATE)
+    is_deleted = db.Column(db.Boolean, default=False)
