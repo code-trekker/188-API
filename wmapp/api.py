@@ -374,6 +374,7 @@ def edit_profile():
     # prof = Profile.query.filter_by(pid=data['pid']).first()
 
     if data["pid"] == "":
+        print 'a'
         new_prof = Profile(uid=data['user_id'], lifestyle_type=data["lifestyle_type"], birthday=data["birthday"], 
                             gender=data["gender"], workout_aim=data["workout_aim"], weight=data["weight"], height=data["height"],
                             first_name=data["first_name"], last_name=data["last_name"])
@@ -387,6 +388,7 @@ def edit_profile():
         })
     
     else:
+        print 'b'
         to_edit = Profile.query.filter_by(pid=data['pid']).first()
 
         to_edit.first_name = data['first_name']
@@ -406,27 +408,80 @@ def edit_profile():
         })
 
 
-@app.route('/api/weight', methods=['POST'])
+@app.route('/api/weights', methods=['POST'])
 @cross_origin('*')
 def weight():
     data = request.get_json()
     res = []
     
-    weights = Weight.query.filter_by(weid=int(data['user_id']), is_deleted=False).order_by(desc(Weight.weid)).all()
+    weights = Weight.query.filter_by(uid=int(data['user_id']), is_deleted=False).order_by(desc(Weight.weid)).all()
 
-    pass
+    for weight in weights:
+        user_weight = {}
+        user_weight["weid"] = weight.weid
+        t = weight.date
+        user_weight["date"] = t.strftime("%a, %d %b %Y")
+        user_weight["weight"] = str(weight.weight)
+        res.append(user_weight)
+
+
+    return jsonify({
+        'status' : 200,
+        'weights' : res,
+        'count' : len(res)
+    })
 
 @app.route('/api/add_weight', methods=['POST'])
 @cross_origin('*')
 def add_weight():
-    pass
+    data = request.get_json()
+    
+    new_weight = Weight(uid=data['user_id'], weight=data['weight'], date=data['date'])
+
+    db.session.add(new_weight)
+    db.session.commit()
+
+    return jsonify({
+        'message' : 'Weight log added successfully!',
+        'status' : 200
+    })
 
 @app.route('/api/remove_weight', methods=['POST'])
 @cross_origin('*')
 def remove_weight():
-    pass
+    data = request.get_json()
+
+    to_remove = Weight.query.filter_by(weid=data['weid']).first()
+
+    to_remove.is_deleted = True
+    
+    db.session.commit()
+    
+    return jsonify({
+        "status" : 200,
+        "message" : "Removed successfully!"
+    })
 
 @app.route('/api/weight_chart', methods=['POST'])
 @cross_origin('*')
 def weight_chart():
-    pass
+    data = request.get_json()
+
+    weights = Weight.query.filter_by(uid=int(data["user_id"]),is_deleted=False).order_by(asc(Weight.date)).all()
+    
+    weight_data = []
+    weight_dates = []
+
+    for w in weights:
+        weight_data.append(str(w.weight))
+        t = w.date
+        weight_dates.append(str(t.strftime("%m/%d/%Y")))
+
+
+    return jsonify({
+        'status' : 200,
+        'weight_data' : weight_data,
+        'weight_date' : weight_dates,
+        'num1' : len(weight_dates),
+        'num2' : len(weight_data)
+    })

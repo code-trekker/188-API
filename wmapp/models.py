@@ -61,6 +61,7 @@ class Workout(db.Model):
 
 class Weight(db.Model):
     weid = db.Column(db.Integer(), primary_key=True)
-    weight = db.Column(db.Integer())
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    weight = db.Column(db.DECIMAL, nullable=True)
     date = db.Column(db.DATE)
     is_deleted = db.Column(db.Boolean, default=False)

@@ -12,7 +12,7 @@ import time, pytz
 app = Flask(__name__)
 
 cors = CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:1234@localhost/wma'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['USE_SESSION_FOR_NEXT'] = True
 app.config['CORS_HEADERS'] = 'Content-Type'
